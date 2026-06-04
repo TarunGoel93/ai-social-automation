@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Media Automation Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+
+  <div class="page-wrapper">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-mark">
+        <span class="logo-icon">&#x2B21;</span>
+        <span class="logo-text">AUTOPOST</span>
+      </div>
+      <h1 class="page-title">Social Media<br><em>Automation</em> Dashboard</h1>
+      <p class="page-subtitle">Generate, craft, and publish content across platforms in seconds.</p>
+    </header>
+
+    <!-- Main card -->
+    <main class="card">
+
+      <!-- Mode Toggle -->
+      <div class="mode-toggle" role="tablist" aria-label="Mode selection" data-tab="0">
+        <button class="toggle-btn active" id="btn-ai" role="tab" aria-selected="true" aria-controls="form-ai" data-mode="ai">
+          <span class="toggle-icon">&#10022;</span> AI Mode
+        </button>
+        <button class="toggle-btn" id="btn-manual" role="tab" aria-selected="false" aria-controls="form-manual" data-mode="manual">
+          <span class="toggle-icon">&#10712;</span> Manual Mode
+        </button>
+        <button class="toggle-btn" id="btn-queue" role="tab" aria-selected="false" aria-controls="form-queue" data-mode="queue">
+          <span class="toggle-icon">&#x1F4CB;</span> Queue
+        </button>
+        <div class="toggle-slider" aria-hidden="true"></div>
+      </div>
+
+      <!-- ── AI MODE FORM ───────────────────────────────────────── -->
+      <section id="form-ai" class="form-panel active" role="tabpanel" aria-labelledby="btn-ai">
+        <div class="form-header">
+          <h2>AI-Generated Post</h2>
+          <p>Describe your idea and let AI craft the perfect post.</p>
+        </div>
+
+        <div class="field-group">
+          <label for="ai-prompt" class="field-label">Post Idea <span class="required">*</span></label>
+          <textarea id="ai-prompt" class="field-input textarea"
+            placeholder="e.g. Announce our new product launch with excitement…" rows="4"></textarea>
+        </div>
+
+        <div class="field-row">
+          <div class="field-group">
+            <label for="ai-platform" class="field-label">Platform <span class="required">*</span></label>
+            <div class="select-wrapper">
+              <select id="ai-platform" class="field-input select">
+                <option value="">Select platform…</option>
+                <option value="instagram">Instagram</option>
+                <option value="linkedin">LinkedIn</option>
+                <option value="both">Both</option>
+              </select>
+              <span class="select-arrow" aria-hidden="true">&#x2193;</span>
+            </div>
+          </div>
+          <div class="field-group">
+            <label for="ai-tone" class="field-label">Tone <span class="optional">(optional)</span></label>
+            <input type="text" id="ai-tone" class="field-input" placeholder="e.g. professional, casual, bold…" />
+          </div>
+        </div>
+
+        <!-- Schedule box -->
+        <div class="schedule-box">
+          <div class="schedule-toggle-row">
+            <span class="schedule-label-text">&#x23F0; Schedule for later</span>
+            <label class="switch" for="ai-schedule-toggle" aria-label="Enable scheduling">
+              <input type="checkbox" id="ai-schedule-toggle" />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+          <div class="schedule-picker" id="ai-schedule-picker" hidden>
+            <label for="ai-scheduled-time" class="field-label">Post Date &amp; Time <span class="required">*</span></label>
+            <input type="datetime-local" id="ai-scheduled-time" class="field-input datetime-input" />
+            <p class="schedule-hint">Your post will be queued and published at this time via n8n.</p>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submit-ai" data-mode="ai">
+          <span class="btn-text">Generate &amp; Post</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span class="btn-icon" aria-hidden="true">&#x2192;</span>
+        </button>
+      </section>
+
+      <!-- ── MANUAL MODE FORM ───────────────────────────────────── -->
+      <section id="form-manual" class="form-panel" role="tabpanel" aria-labelledby="btn-manual" hidden>
+        <div class="form-header">
+          <h2>Manual Post</h2>
+          <p>Upload your image and write your own caption.</p>
+        </div>
+
+        <!-- Image upload zone -->
+        <div class="field-group">
+          <label for="manual-image" class="field-label">Image <span class="required">*</span></label>
+          <div class="upload-zone" id="upload-zone">
+            <input type="file" id="manual-image" class="upload-input" accept="image/*" aria-label="Upload image" />
+            <div class="upload-placeholder" id="upload-placeholder">
+              <span class="upload-icon" aria-hidden="true">&#x2295;</span>
+              <span class="upload-text">Drop image here or <u>browse</u></span>
+              <span class="upload-hint">PNG, JPG, GIF, WEBP — max 16 MB</span>
+            </div>
+            <div class="upload-preview" id="upload-preview" hidden>
+              <img id="preview-img" src="" alt="Preview" />
+              <button class="remove-image" id="remove-image" type="button" aria-label="Remove image">&#x2715;</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="manual-caption" class="field-label">Caption <span class="required">*</span></label>
+          <textarea id="manual-caption" class="field-input textarea"
+            placeholder="Write your post caption here…" rows="4"></textarea>
+        </div>
+
+        <div class="field-group">
+          <label for="manual-platform" class="field-label">Platform <span class="required">*</span></label>
+          <div class="select-wrapper">
+            <select id="manual-platform" class="field-input select">
+              <option value="">Select platform…</option>
+              <option value="instagram">Instagram</option>
+              <option value="linkedin">LinkedIn</option>
+              <option value="both">Both</option>
+            </select>
+            <span class="select-arrow" aria-hidden="true">&#x2193;</span>
+          </div>
+        </div>
+
+        <!-- Schedule box -->
+        <div class="schedule-box">
+          <div class="schedule-toggle-row">
+            <span class="schedule-label-text">&#x23F0; Schedule for later</span>
+            <label class="switch" for="manual-schedule-toggle" aria-label="Enable scheduling">
+              <input type="checkbox" id="manual-schedule-toggle" />
+              <span class="switch-track"></span>
+            </label>
+          </div>
+          <div class="schedule-picker" id="manual-schedule-picker" hidden>
+            <label for="manual-scheduled-time" class="field-label">Post Date &amp; Time <span class="required">*</span></label>
+            <input type="datetime-local" id="manual-scheduled-time" class="field-input datetime-input" />
+            <p class="schedule-hint">Your post will be queued and published at this time via n8n.</p>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submit-manual" data-mode="manual">
+          <span class="btn-text">Post Now</span>
+          <span class="btn-spinner" aria-hidden="true"></span>
+          <span class="btn-icon" aria-hidden="true">&#x2192;</span>
+        </button>
+      </section>
+
+      <!-- ── QUEUE PANEL ─────────────────────────────────────── -->
+      <section id="form-queue" class="form-panel" role="tabpanel" aria-labelledby="btn-queue" hidden>
+        <div class="form-header">
+          <h2>Scheduled Queue</h2>
+          <p>All pending, posted, and failed posts. Refreshes automatically.</p>
+        </div>
+
+        <div class="queue-toolbar">
+          <div class="queue-filters">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">⏳ Pending</button>
+            <button class="filter-btn" data-filter="posted">✅ Posted</button>
+            <button class="filter-btn" data-filter="failed">❌ Failed</button>
+          </div>
+          <button class="queue-refresh-btn" id="queue-refresh" title="Refresh">&#x21BB; Refresh</button>
+        </div>
+
+        <div id="queue-list" class="queue-list">
+          <p class="queue-empty">Loading posts…</p>
+        </div>
+      </section>
+
+      <!-- Status banner (shared) -->
+      <div class="status-banner" id="status-banner" role="alert" aria-live="polite" hidden>
+        <span class="status-icon" id="status-icon" aria-hidden="true"></span>
+        <span class="status-message" id="status-message"></span>
+        <button class="status-close" id="status-close" aria-label="Dismiss">&#x2715;</button>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <span>Powered by Flask &#xD7; n8n</span>
+      <span class="footer-dot" aria-hidden="true">&#xB7;</span>
+      <span id="webhook-status" class="webhook-status">
+        <span class="ws-dot" id="ws-dot"></span>
+        <span id="ws-label">checking n8n…</span>
+      </span>
+      <span class="footer-dot" aria-hidden="true">&#xB7;</span>
+      <span>Webhook: <code>intellifytechnologies.app.n8n.cloud</code></span>
+    </footer>
+
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+</html>

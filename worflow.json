@@ -1,0 +1,80 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "postAs": "organization",
+        "organization": "111475335",
+        "text": "={{ $json.content }}",
+        "shareMediaCategory": "IMAGE",
+        "binaryPropertyName": "image",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        160,
+        -160
+      ],
+      "id": "fd4da0ee-24da-4295-9621-3665c3c7f257",
+      "name": "Create a post"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "0e383072-9f3d-4da2-8e47-ca164ae15191",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -224,
+        -160
+      ],
+      "id": "a32ef3e9-3780-4d76-a875-3afa12dd4794",
+      "name": "Webhook",
+      "webhookId": "0e383072-9f3d-4da2-8e47-ca164ae15191"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\nreturn [{\n  json: {\n    content: item.json.body.caption\n  },\n  binary: {\n    image: item.binary?.image || item.binary?.data\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "1eb6799f-4a94-4172-90c7-29ed6663018f",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "643a8f38db594972a3d571a1b4904afa7f06f7a706d2be3b58da9e786bb1d909"
+  }
+}
