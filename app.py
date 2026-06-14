@@ -91,6 +91,8 @@ def fire_post(post: dict):
         return False, f'Webhook error: {e}'
 
 
+# ── Routes ────────────────────────────────────────────────────────────────────
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -106,6 +108,45 @@ def health():
         return jsonify({'status': 'error', 'message': 'n8n unreachable'}), 503
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+@app.route('/run-cron', methods=['GET', 'POST'])
+def run_cron():
+    """Called by cron-job.org every 5 minutes to fire due posts."""
+    now = datetime.now(timezone.utc)
+
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT * FROM posts WHERE status='pending' AND scheduled_time <= %s",
+                (now,)
+            )
+            due = cur.fetchall()
+
+    fired = 0
+    results = []
+    for post in due:
+        post = dict(post)
+        ok, msg = fire_post(post)
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "UPDATE posts SET status=%s, fired_at=NOW(), error_msg=%s WHERE id=%s",
+                    ('posted' if ok else 'failed', None if ok else msg, post['id'])
+                )
+            conn.commit()
+        fired += 1
+        results.append({
+            'id': post['id'],
+            'status': 'posted' if ok else 'failed',
+            'message': msg
+        })
+
+    return jsonify({
+        'status': 'ok',
+        'fired': fired,
+        'checked_at': now.isoformat(),
+        'results': results
+    })
 
 @app.route('/submit', methods=['POST'])
 def submit():
