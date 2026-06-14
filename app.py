@@ -256,6 +256,21 @@ def list_posts():
         posts.append(p)
     return jsonify({'status': 'success', 'posts': posts})
 
+@app.route('/debug-posts')
+def debug_posts():
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, mode, caption, scheduled_time, status, fired_at, error_msg, created_at, NOW() as server_now FROM posts ORDER BY created_at DESC LIMIT 5")
+            rows = cur.fetchall()
+    out = []
+    for r in rows:
+        d = dict(r)
+        for k, v in d.items():
+            if isinstance(v, datetime):
+                d[k] = v.isoformat()
+        out.append(d)
+    return jsonify(out)
+
 @app.route('/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
     with get_db() as conn:
