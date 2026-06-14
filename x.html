@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Social Automation — README</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#09090f;
+  --surface:#111118;
+  --surface2:#18181f;
+  --border:#ffffff0f;
+  --border2:#ffffff1a;
+  --text:#f0f0f8;
+  --muted:#8888a8;
+  --accent:#7c6ff7;
+  --accent2:#5dd8c3;
+  --accent3:#f97066;
+  --pink:#d668c9;
+  --yellow:#f6c94e;
+  --glow:rgba(124,111,247,0.18);
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  font-size:15px;
+  line-height:1.7;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Grain overlay ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+  opacity:.5;
+}
+
+/* ── Radial glow ── */
+body::after{
+  content:'';
+  position:fixed;
+  top:-30vh;
+  left:50%;
+  transform:translateX(-50%);
+  width:900px;
+  height:600px;
+  background:radial-gradient(ellipse at center,rgba(124,111,247,.12) 0%,transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.page{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:0 24px 120px}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scanline{from{background-position:0 0}to{background-position:0 100%}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes glow-border{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 0 3px rgba(124,111,247,.25)}}
+@keyframes slide-in-right{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes counter{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+
+.au{animation:fadeUp .6s ease both}
+.au2{animation:fadeUp .6s .15s ease both}
+.au3{animation:fadeUp .6s .3s ease both}
+.au4{animation:fadeUp .6s .45s ease both}
+
+/* ── Hero ── */
+.hero{
+  padding:80px 0 64px;
+  text-align:center;
+  position:relative;
+}
+
+.hero-eyebrow{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  background:rgba(124,111,247,.1);
+  border:1px solid rgba(124,111,247,.25);
+  border-radius:100px;
+  padding:5px 14px;
+  font-size:12px;
+  font-family:'Space Mono',monospace;
+  color:var(--accent);
+  letter-spacing:.06em;
+  margin-bottom:28px;
+  animation:fadeUp .5s ease both;
+}
+
+.dot{
+  width:6px;height:6px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:pulse 2s infinite;
+}
+
+.hero h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(38px,6vw,68px);
+  font-weight:800;
+  line-height:1.05;
+  letter-spacing:-.03em;
+  margin-bottom:20px;
+  animation:fadeUp .6s .1s ease both;
+}
+
+.hero h1 .line1{display:block;color:var(--text)}
+.hero h1 .line2{
+  display:block;
+  background:linear-gradient(90deg,var(--accent),var(--accent2),var(--pink));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-desc{
+  max-width:560px;
+  margin:0 auto 36px;
+  color:var(--muted);
+  font-size:16px;
+  font-weight:300;
+  animation:fadeUp .6s .2s ease both;
+}
+
+.badge-row{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:40px;
+  animation:fadeUp .6s .3s ease both;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 12px;
+  border-radius:6px;
+  font-size:12px;
+  font-family:'Space Mono',monospace;
+  border:1px solid;
+  font-weight:700;
+}
+.badge.python{background:rgba(55,120,221,.1);border-color:rgba(55,120,221,.3);color:#5da7f5}
+.badge.flask{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:#ccc}
+.badge.n8n{background:rgba(234,75,113,.1);border-color:rgba(234,75,113,.3);color:#f07fa0}
+.badge.sqlite{background:rgba(0,59,87,.2);border-color:rgba(0,150,215,.25);color:#5bc8f5}
+.badge.li{background:rgba(10,102,194,.12);border-color:rgba(10,102,194,.3);color:#5aa0e8}
+.badge.ig{background:rgba(228,64,95,.1);border-color:rgba(228,64,95,.3);color:#f07a92}
+
+.hero-divider{
+  width:120px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--border2),transparent);
+  margin:0 auto;
+  animation:fadeIn 1s .5s ease both;
+}
+
+/* ── Section ── */
+section{margin-top:72px}
+.section-label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  color:var(--accent);
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+.section-label::after{
+  content:'';
+  flex:1;
+  height:1px;
+  background:var(--border);
+}
+h2.section-title{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(22px,3.5vw,30px);
+  font-weight:700;
+  letter-spacing:-.02em;
+  margin-bottom:8px;
+}
+.section-sub{color:var(--muted);margin-bottom:32px;font-size:14px}
+
+/* ── Feature grid ── */
+.feature-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+}
+.feature-card{
+  background:var(--surface);
+  padding:24px;
+  transition:background .2s;
+  position:relative;
+  overflow:hidden;
+}
+.feature-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg,var(--glow),transparent);
+  opacity:0;
+  transition:opacity .3s;
+}
+.feature-card:hover{background:var(--surface2)}
+.feature-card:hover::before{opacity:1}
+.feature-card:hover .fc-icon{animation:float 2s ease infinite}
+
+.fc-icon{
+  width:40px;height:40px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;
+  font-size:18px;
+  transition:transform .3s;
+}
+.ic-purple{background:rgba(124,111,247,.15);color:var(--accent)}
+.ic-teal{background:rgba(93,216,195,.12);color:var(--accent2)}
+.ic-coral{background:rgba(249,112,102,.12);color:var(--accent3)}
+.ic-pink{background:rgba(214,104,201,.12);color:var(--pink)}
+.ic-yellow{background:rgba(246,201,78,.1);color:var(--yellow)}
+.ic-blue{background:rgba(55,120,221,.12);color:#5da7f5}
+
+.fc-title{
+  font-family:'Syne',sans-serif;
+  font-size:15px;font-weight:700;
+  margin-bottom:6px;letter-spacing:-.01em;
+}
+.fc-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── Architecture diagram ── */
+.arch-box{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:0;
+  overflow:hidden;
+}
+.arch-header{
+  background:var(--surface2);
+  padding:12px 20px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+}
+.arch-dot{width:10px;height:10px;border-radius:50%}
+.arch-body{padding:28px 24px;overflow-x:auto}
+
+.arch-layer{
+  border:1px solid var(--border2);
+  border-radius:12px;
+  padding:16px 20px;
+  margin-bottom:12px;
+  position:relative;
+}
+.arch-layer-label{
+  font-family:'Space Mono',monospace;
+  font-size:10px;
+  color:var(--muted);
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+.arch-nodes{display:flex;flex-wrap:wrap;gap:8px}
+.arch-node{
+  padding:6px 14px;
+  border-radius:8px;
+  font-family:'Space Mono',monospace;
+  font-size:11px;
+  border:1px solid;
+}
+.an-purple{background:rgba(124,111,247,.12);border-color:rgba(124,111,247,.3);color:var(--accent)}
+.an-teal{background:rgba(93,216,195,.1);border-color:rgba(93,216,195,.25);color:var(--accent2)}
+.an-coral{background:rgba(249,112,102,.1);border-color:rgba(249,112,102,.25);color:var(--accent3)}
+.an-gray{background:rgba(255,255,255,.04);border-color:var(--border2);color:var(--muted)}
+.an-pink{background:rgba(214,104,201,.1);border-color:rgba(214,104,201,.25);color:var(--pink)}
+.an-yellow{background:rgba(246,201,78,.08);border-color:rgba(246,201,78,.2);color:var(--yellow)}
+
+.arch-arrow{
+  text-align:center;
+  font-size:18px;
+  color:var(--muted);
+  margin:4px 0;
+  animation:pulse 2.5s infinite;
+}
+
+/* ── File tree ── */
+.filetree{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  overflow:hidden;
+}
+.filetree-header{
+  background:var(--surface2);
+  padding:10px 18px;
+  display:flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--border);
+  font-family:'Space Mono',monospace;
+  font-size:12px;color:var(--muted);
+}
+.filetree-body{padding:20px 20px;font-family:'Space Mono',monospace;font-size:13px;line-height:2}
+.ft-dir{color:var(--accent2)}
+.ft-py{color:var(--accent)}
+.ft-html{color:var(--accent3)}
+.ft-css{color:#5da7f5}
+.ft-js{color:var(--yellow)}
+.ft-json{color:var(--pink)}
+.ft-db{color:var(--muted)}
+.ft-txt{color:var(--muted)}
+.ft-indent{padding-left:22px}
+.ft-comment{color:#ffffff28;margin-left:10px}
+
+/* ── API table ── */
+.api-table{width:100%;border-collapse:collapse;font-size:13px}
+.api-table th{
+  text-align:left;padding:10px 14px;
+  border-bottom:1px solid var(--border2);
+  font-family:'Space Mono',monospace;
+  font-size:11px;color:var(--muted);
+  letter-spacing:.06em;text-transform:uppercase;
+  font-weight:400;
+}
+.api-table td{padding:12px 14px;border-bottom:1px solid var(--border)}
+.api-table tr:last-child td{border-bottom:none}
+.api-table tr:hover td{background:rgba(255,255,255,.02)}
+.api-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:14px;overflow:hidden}
+
+.method{
+  display:inline-block;
+  font-family:'Space Mono',monospace;
+  font-size:11px;font-weight:700;
+  padding:2px 8px;border-radius:4px;
+}
+.m-get{background:rgba(93,216,195,.15);color:var(--accent2)}
+.m-post{background:rgba(124,111,247,.15);color:var(--accent)}
+.m-del{background:rgba(249,112,102,.15);color:var(--accent3)}
+
+.route{
+  font-family:'Space Mono',monospace;
+  font-size:12px;color:var(--text);
+}
+
+/* ── Code block ── */
+.codeblock{
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  overflow:hidden;
+  margin:16px 0;
+}
+.cb-header{
+  background:var(--surface2);
+  padding:8px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
+}
+.cb-lang{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted)}
+.cb-copy{
+  font-family:'Space Mono',monospace;font-size:11px;
+  color:var(--muted);cursor:pointer;
+  background:none;border:none;
+  transition:color .2s;
+}
+.cb-copy:hover{color:var(--accent)}
+.cb-body{padding:18px 20px;overflow-x:auto}
+pre{font-family:'Space Mono',monospace;font-size:12.5px;line-height:1.7;color:#ccc}
+.kw{color:var(--accent)}
+.str{color:var(--accent2)}
+.cm{color:#555568}
+.fn{color:var(--yellow)}
+.nb{color:var(--accent3)}
+.var{color:#a8d8ff}
+
+/* ── Step list ── */
+.steps{display:flex;flex-direction:column;gap:0}
+.step{
+  display:flex;gap:20px;
+  padding:24px 0;
+  border-bottom:1px solid var(--border);
+  position:relative;
+}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:34px;height:34px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;
+  font-size:13px;font-weight:700;
+  background:rgba(124,111,247,.12);
+  border:1px solid rgba(124,111,247,.3);
+  color:var(--accent);
+  flex-shrink:0;
+  margin-top:2px;
+  animation:glow-border 3s infinite;
+}
+.step-title{
+  font-family:'Syne',sans-serif;
+  font-size:16px;font-weight:700;
+  margin-bottom:6px;
+}
+.step-desc{color:var(--muted);font-size:14px;margin-bottom:10px}
+
+/* ── Schema ── */
+.schema-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  gap:12px;
+}
+.schema-field{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 14px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:10px;
+  transition:border-color .2s;
+}
+.schema-field:hover{border-color:var(--border2)}
+.sf-name{
+  font-family:'Space Mono',monospace;
+  font-size:12px;color:var(--accent);
+  flex-shrink:0;min-width:110px;
+}
+.sf-type{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.sf-desc{font-size:13px;color:var(--muted)}
+
+/* ── n8n workflow ── */
+.n8n-flow{
+  display:flex;align-items:center;gap:0;
+  padding:24px;
+  background:var(--surface);
+  border:1px solid var(--border2);
+  border-radius:14px;
+  overflow-x:auto;
+  flex-wrap:nowrap;
+}
+.n8n-node{
+  display:flex;flex-direction:column;align-items:center;
+  gap:8px;flex-shrink:0;
+}
+.n8n-icon{
+  width:52px;height:52px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  border:1px solid;
+  transition:transform .3s;
+}
+.n8n-icon:hover{transform:scale(1.1)}
+.n8n-name{font-size:11px;font-family:'Space Mono',monospace;color:var(--muted);text-align:center;max-width:80px}
+.n8n-arrow{
+  flex:1;min-width:40px;height:1px;
+  background:linear-gradient(90deg,var(--border2),var(--accent),var(--border2));
+  position:relative;
+}
+.n8n-arrow::after{
+  content:'›';
+  position:absolute;
+  right:-8px;top:-10px;
+  color:var(--accent);font-size:18px;
+}
+
+/* ── Stats row ── */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;
+  margin-top:32px;
+}
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:20px 18px;
+  text-align:center;
+  transition:border-color .2s, transform .2s;
+}
+.stat-card:hover{border-color:rgba(124,111,247,.3);transform:translateY(-2px)}
+.stat-val{
+  font-family:'Syne',sans-serif;
+  font-size:28px;font-weight:800;
+  letter-spacing:-.03em;
+  margin-bottom:4px;
+}
+.stat-label{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace}
+
+/* ── Footer ── */
+.footer{
+  margin-top:100px;
+  padding:40px 0 20px;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.footer-logo{
+  font-family:'Syne',sans-serif;
+  font-size:24px;font-weight:800;
+  letter-spacing:-.03em;
+  margin-bottom:12px;
+}
+.footer-logo span{
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.footer-links{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin:16px 0}
+.footer-links a{
+  font-family:'Space Mono',monospace;
+  font-size:12px;color:var(--muted);text-decoration:none;
+  transition:color .2s;
+}
+.footer-links a:hover{color:var(--accent)}
+.footer-copy{font-size:12px;color:#444458}
+
+/* ── Warning box ── */
+.callout{
+  display:flex;gap:14px;
+  padding:16px 18px;
+  border-radius:12px;
+  margin:14px 0;
+  border:1px solid;
+}
+.callout.warn{background:rgba(246,201,78,.06);border-color:rgba(246,201,78,.2)}
+.callout.info{background:rgba(93,216,195,.06);border-color:rgba(93,216,195,.2)}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.callout.warn .callout-icon{color:var(--yellow)}
+.callout.info .callout-icon{color:var(--accent2)}
+.callout-text{font-size:13px;color:var(--muted);line-height:1.6}
+.callout-text strong{color:var(--text)}
+
+/* ── TOC nav ── */
+.toc{
+  position:fixed;right:24px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:8px;
+  z-index:10;
+}
+.toc-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--border2);
+  cursor:pointer;transition:all .2s;
+  position:relative;
+}
+.toc-dot:hover,.toc-dot.active{background:var(--accent);width:8px;height:8px}
+.toc-dot::before{
+  content:attr(data-label);
+  position:absolute;right:18px;top:50%;transform:translateY(-50%);
+  font-family:'Space Mono',monospace;font-size:10px;
+  color:var(--muted);white-space:nowrap;
+  opacity:0;transition:opacity .2s;pointer-events:none;
+}
+.toc-dot:hover::before{opacity:1}
+
+@media(max-width:700px){.toc{display:none}}
+@media(max-width:600px){.n8n-flow{flex-direction:column}.n8n-arrow{width:1px;height:32px;background:linear-gradient(180deg,var(--border2),var(--accent),var(--border2))}.n8n-arrow::after{content:'↓';right:-8px;top:auto;bottom:-14px}}
+</style>
+</head>
+<body>
+
+<!-- TOC -->
+<nav class="toc" aria-label="Page sections">
+  <div class="toc-dot active" data-label="Hero" onclick="scrollTo('hero')"></div>
+  <div class="toc-dot" data-label="Features" onclick="scrollTo('features')"></div>
+  <div class="toc-dot" data-label="Architecture" onclick="scrollTo('arch')"></div>
+  <div class="toc-dot" data-label="Quick Start" onclick="scrollTo('start')"></div>
+  <div class="toc-dot" data-label="n8n Setup" onclick="scrollTo('n8n')"></div>
+  <div class="toc-dot" data-label="API" onclick="scrollTo('api')"></div>
+  <div class="toc-dot" data-label="Schema" onclick="scrollTo('schema')"></div>
+</nav>
+
+<div class="page">
+
+  <!-- ── Hero ── -->
+  <section class="hero" id="hero">
+    <div class="hero-eyebrow">
+      <span class="dot"></span>
+      v1.0 · open source
+    </div>
+    <h1>
+      <span class="line1">AI Social</span>
+      <span class="line2">Automation</span>
+    </h1>
+    <p class="hero-desc au2">
+      Flask backend with n8n webhook integration, a persistent SQLite post queue,
+      background scheduler, and a clean dashboard UI for LinkedIn &amp; Instagram.
+    </p>
+    <div class="badge-row">
+      <span class="badge python">Python 3.10+</span>
+      <span class="badge flask">Flask 3.0</span>
+      <span class="badge n8n">n8n Workflows</span>
+      <span class="badge sqlite">SQLite</span>
+      <span class="badge li">LinkedIn</span>
+      <span class="badge ig">Instagram</span>
+    </div>
+    <div class="hero-divider"></div>
+
+    <div class="stats-row au3">
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent)">6</div>
+        <div class="stat-label">API endpoints</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent2)">30s</div>
+        <div class="stat-label">scheduler interval</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--accent3)">2</div>
+        <div class="stat-label">post modes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" style="color:var(--yellow)">16MB</div>
+        <div class="stat-label">max upload</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ── -->
+  <section id="features" class="au">
+    <div class="section-label">01 · features</div>
+    <h2 class="section-title">Everything you need to post on autopilot</h2>
+    <p class="section-sub">Six tightly integrated capabilities, zero third-party auth SDKs.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="fc-icon ic-purple">🤖</div>
+        <div class="fc-title">AI Mode</div>
+        <div class="fc-desc">Describe your idea and let the AI craft the perfect post — captions, tone, hashtags, all of it. Just a prompt and a platform.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon ic-teal">✍️</div>
+        <div class="fc-title">Manual Mode</div>
+        <div class="fc-desc">Drag-and-drop your image, write your caption, and publish directly. Full control, zero abstraction.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon ic-coral">🕐</div>
+        <div class="fc-title">Scheduled Queue</div>
+        <div class="fc-desc">Queue posts for any future date &amp; time. A background daemon polls every 30 s and fires them via the n8n webhook.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon ic-pink">📋</div>
+        <div class="fc-title">Queue Dashboard</div>
+        <div class="fc-desc">Live panel showing pending, posted, and failed posts. Cancel or manually fire any queued item on demand.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon ic-yellow">🔗</div>
+        <div class="fc-title">n8n Integration</div>
+        <div class="fc-desc">Webhook-driven delivery to LinkedIn and Instagram through importable n8n workflows — no platform SDK headaches.</div>
+      </div>
+      <div class="feature-card">
+        <div class="fc-icon ic-blue">💾</div>
+        <div class="fc-title">Persistent Storage</div>
+        <div class="fc-desc">Every queued post — including uploaded images — is stored in SQLite so nothing is lost across server restarts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Architecture ── -->
+  <section id="arch" class="au">
+    <div class="section-label">02 · architecture</div>
+    <h2 class="section-title">How it all fits together</h2>
+    <p class="section-sub">Three clean layers: dashboard UI → Flask backend → n8n workflow.</p>
+
+    <div class="arch-box">
+      <div class="arch-header">
+        <div class="arch-dot" style="background:#ff5f57"></div>
+        <div class="arch-dot" style="background:#febc2e"></div>
+        <div class="arch-dot" style="background:#28c840"></div>
+        <span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-left:8px">system architecture</span>
+      </div>
+      <div class="arch-body">
+
+        <div class="arch-layer" style="border-color:rgba(124,111,247,.2)">
+          <div class="arch-layer-label">Browser / Dashboard UI</div>
+          <div class="arch-nodes">
+            <span class="arch-node an-purple">index.html</span>
+            <span class="arch-node an-purple">style.css</span>
+            <span class="arch-node an-purple">script.js</span>
+            <span class="arch-node an-gray">Syne + DM Sans fonts</span>
+            <span class="arch-node an-gray">3-tab slider UI</span>
+          </div>
+        </div>
+
+        <div class="arch-arrow">↓</div>
+        <div style="text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">HTTP · JSON / multipart</div>
+
+        <div class="arch-layer" style="border-color:rgba(93,216,195,.2)">
+          <div class="arch-layer-label">Flask Backend (app.py)</div>
+          <div class="arch-nodes">
+            <span class="arch-node an-teal">POST /submit</span>
+            <span class="arch-node an-teal">POST /queue</span>
+            <span class="arch-node an-teal">GET /posts</span>
+            <span class="arch-node an-teal">DELETE /posts/:id</span>
+            <span class="arch-node an-teal">POST /posts/:id/fire</span>
+            <span class="arch-node an-teal">GET /health</span>
+            <span class="arch-node an-gray">Background scheduler · 30 s poll</span>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin:4px 0">
+          <div style="flex:1;text-align:center">
+            <div class="arch-arrow">↓</div>
+            <div style="text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">read/write</div>
+          </div>
+          <div style="flex:1;text-align:center">
+            <div class="arch-arrow">↓</div>
+            <div style="text-align:center;font-family:'Space Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:8px">POST webhook</div>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px">
+          <div class="arch-layer" style="flex:1;border-color:rgba(249,112,102,.2)">
+            <div class="arch-layer-label">SQLite (posts.db)</div>
+            <div class="arch-nodes">
+              <span class="arch-node an-coral">posts table</span>
+              <span class="arch-node an-coral">post_images/</span>
+              <span class="arch-node an-gray">status tracking</span>
+            </div>
+          </div>
+          <div class="arch-layer" style="flex:1;border-color:rgba(214,104,201,.2)">
+            <div class="arch-layer-label">n8n Workflow</div>
+            <div class="arch-nodes">
+              <span class="arch-node an-pink">Webhook</span>
+              <span class="arch-node an-pink">JS Transform</span>
+              <span class="arch-node an-pink">LinkedIn Node</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── File tree ── -->
+  <section class="au">
+    <div class="section-label">03 · project structure</div>
+    <h2 class="section-title">Repository layout</h2>
+    <div class="filetree">
+      <div class="filetree-header">
+        📁 ai-social-automation/
+      </div>
+      <div class="filetree-body">
+        <div><span class="ft-py">app.py</span><span class="ft-comment">Flask backend — routes, scheduler, DB</span></div>
+        <div><span class="ft-py">n1.py</span><span class="ft-comment">helper / utility script</span></div>
+        <div><span class="ft-txt">requirements.txt</span><span class="ft-comment">flask · flask-cors · requests</span></div>
+        <div><span class="ft-json">worflow.json</span><span class="ft-comment">n8n workflow — import directly</span></div>
+        <div><span class="ft-db">posts.db</span><span class="ft-comment">SQLite database (auto-created)</span></div>
+        <div class="ft-dir">post_images/<span class="ft-comment" style="color:#ffffff18">persistent image storage</span></div>
+        <div class="ft-dir">uploads/<span class="ft-comment" style="color:#ffffff18">temp storage for immediate posts</span></div>
+        <div class="ft-dir">templates/</div>
+        <div class="ft-indent"><span class="ft-html">index.html</span><span class="ft-comment">single-page dashboard UI</span></div>
+        <div class="ft-dir">static/</div>
+        <div class="ft-indent"><span class="ft-css">style.css</span><span class="ft-comment">dashboard styles</span></div>
+        <div class="ft-indent"><span class="ft-js">script.js</span><span class="ft-comment">frontend logic &amp; queue management</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Quick Start ── -->
+  <section id="start" class="au">
+    <div class="section-label">04 · quick start</div>
+    <h2 class="section-title">Up and running in 4 steps</h2>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">01</div>
+        <div>
+          <div class="step-title">Clone the repository</div>
+          <div class="step-desc">Pull the code from GitHub and change into the project directory.</div>
+          <div class="codeblock">
+            <div class="cb-header">
+              <span class="cb-lang">bash</span>
+              <button class="cb-copy" onclick="copyCode(this)">copy</button>
+            </div>
+            <div class="cb-body"><pre><span class="kw">git</span> clone https://github.com/TarunGoel93/ai-social-automation.git
+<span class="kw">cd</span> ai-social-automation</pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">02</div>
+        <div>
+          <div class="step-title">Install Python dependencies</div>
+          <div class="step-desc">Three lightweight packages — Flask, CORS support, and Requests.</div>
+          <div class="codeblock">
+            <div class="cb-header">
+              <span class="cb-lang">bash</span>
+              <button class="cb-copy" onclick="copyCode(this)">copy</button>
+            </div>
+            <div class="cb-body"><pre><span class="kw">pip</span> install -r requirements.txt</pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">03</div>
+        <div>
+          <div class="step-title">Set your n8n webhook URL</div>
+          <div class="step-desc">Point the app at your n8n production webhook. The default test URL only works while the workflow is open in n8n.</div>
+          <div class="codeblock">
+            <div class="cb-header">
+              <span class="cb-lang">bash</span>
+              <button class="cb-copy" onclick="copyCode(this)">copy</button>
+            </div>
+            <div class="cb-body"><pre><span class="kw">export</span> <span class="var">N8N_WEBHOOK_URL</span>=<span class="str">"https://&lt;your-n8n-instance&gt;/webhook/&lt;your-path&gt;"</span></pre></div>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <div class="callout-text"><strong>Production note:</strong> Replace <code>/webhook-test/</code> with <code>/webhook/</code> and activate the workflow before going live.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">04</div>
+        <div>
+          <div class="step-title">Start the server</div>
+          <div class="step-desc">Flask starts on port 5000. The background scheduler launches automatically in a daemon thread.</div>
+          <div class="codeblock">
+            <div class="cb-header">
+              <span class="cb-lang">bash</span>
+              <button class="cb-copy" onclick="copyCode(this)">copy</button>
+            </div>
+            <div class="cb-body"><pre><span class="kw">python</span> app.py
+<span class="cm"># → Running on http://localhost:5000</span></pre></div>
+          </div>
+          <div class="callout info">
+            <span class="callout-icon">✅</span>
+            <div class="callout-text">Open <strong>http://localhost:5000</strong> — the dashboard is live. The SQLite database is created automatically on first run.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── n8n ── -->
+  <section id="n8n" class="au">
+    <div class="section-label">05 · n8n workflow setup</div>
+    <h2 class="section-title">Three nodes, zero boilerplate</h2>
+    <p class="section-sub">Import <code>worflow.json</code> and connect your LinkedIn credentials — that's it.</p>
+
+    <div class="n8n-flow">
+      <div class="n8n-node">
+        <div class="n8n-icon" style="background:rgba(234,75,113,.12);border-color:rgba(234,75,113,.3);font-size:24px">🪝</div>
+        <div class="n8n-name">Webhook trigger</div>
+      </div>
+      <div class="n8n-arrow"></div>
+      <div class="n8n-node">
+        <div class="n8n-icon" style="background:rgba(246,201,78,.1);border-color:rgba(246,201,78,.25);font-size:20px">{ }</div>
+        <div class="n8n-name">Code in JavaScript</div>
+      </div>
+      <div class="n8n-arrow"></div>
+      <div class="n8n-node">
+        <div class="n8n-icon" style="background:rgba(10,102,194,.12);border-color:rgba(10,102,194,.3);font-size:22px">in</div>
+        <div class="n8n-name">LinkedIn post node</div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px">
+      <table class="api-table" style="background:var(--surface);border:1px solid var(--border2);border-radius:12px;overflow:hidden">
+        <thead>
+          <tr>
+            <th>Node</th>
+            <th>Type</th>
+            <th>Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--accent3)">Webhook</span></td>
+            <td style="color:var(--muted);font-size:13px">Webhook trigger</td>
+            <td style="color:var(--muted);font-size:13px">Receives POST from Flask with payload or multipart image</td>
+          </tr>
+          <tr>
+            <td><span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--yellow)">Code in JavaScript</span></td>
+            <td style="color:var(--muted);font-size:13px">Code node</td>
+            <td style="color:var(--muted);font-size:13px">Extracts <code>caption</code> field and <code>image</code> binary from request body</td>
+          </tr>
+          <tr>
+            <td><span style="font-family:'Space Mono',monospace;font-size:12px;color:#5da7f5">Create a post</span></td>
+            <td style="color:var(--muted);font-size:13px">LinkedIn node</td>
+            <td style="color:var(--muted);font-size:13px">Publishes to a LinkedIn organization (org ID: 111475335)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── API ── -->
+  <section id="api" class="au">
+    <div class="section-label">06 · api reference</div>
+    <h2 class="section-title">All six endpoints</h2>
+    <p class="section-sub">RESTful, JSON-first, with multipart support for image uploads.</p>
+
+    <div class="api-wrap">
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Route</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="method m-post">POST</span></td>
+            <td class="route">/submit</td>
+            <td style="color:var(--muted);font-size:13px">Immediate or scheduled single post (AI or manual)</td>
+          </tr>
+          <tr>
+            <td><span class="method m-post">POST</span></td>
+            <td class="route">/queue</td>
+            <td style="color:var(--muted);font-size:13px">Add directly to persistent queue — <code>scheduled_time</code> required</td>
+          </tr>
+          <tr>
+            <td><span class="method m-get">GET</span></td>
+            <td class="route">/posts</td>
+            <td style="color:var(--muted);font-size:13px">List all posts · filter via <code>?status=pending|posted|failed</code></td>
+          </tr>
+          <tr>
+            <td><span class="method m-del">DEL</span></td>
+            <td class="route">/posts/:id</td>
+            <td style="color:var(--muted);font-size:13px">Cancel and delete a pending post (removes image from disk too)</td>
+          </tr>
+          <tr>
+            <td><span class="method m-post">POST</span></td>
+            <td class="route">/posts/:id/fire</td>
+            <td style="color:var(--muted);font-size:13px">Manually trigger a pending post immediately</td>
+          </tr>
+          <tr>
+            <td><span class="method m-get">GET</span></td>
+            <td class="route">/health</td>
+            <td style="color:var(--muted);font-size:13px">Check whether the n8n webhook is reachable</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:24px">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:12px;letter-spacing:.06em;text-transform:uppercase">Example — AI mode payload</div>
+      <div class="codeblock">
+        <div class="cb-header">
+          <span class="cb-lang">json</span>
+          <button class="cb-copy" onclick="copyCode(this)">copy</button>
+        </div>
+        <div class="cb-body"><pre>{
+  <span class="kw">"mode"</span>:           <span class="str">"ai"</span>,
+  <span class="kw">"prompt"</span>:         <span class="str">"Announce our new product launch with excitement"</span>,
+  <span class="kw">"tone"</span>:           <span class="str">"professional"</span>,
+  <span class="kw">"platforms"</span>:      <span class="str">"linkedin"</span>,
+  <span class="kw">"scheduled_time"</span>: <span class="str">"2025-12-01T10:00:00"</span>  <span class="cm">// omit for immediate</span>
+}</pre></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Schema ── -->
+  <section id="schema" class="au">
+    <div class="section-label">07 · database schema</div>
+    <h2 class="section-title">posts table</h2>
+    <p class="section-sub">Single SQLite table. Auto-created on first run via <code>init_db()</code>.</p>
+
+    <div class="schema-grid">
+      <div class="schema-field"><div><div class="sf-name">id<span class="sf-type">INTEGER PK</span></div></div><div class="sf-desc">Auto-increment primary key</div></div>
+      <div class="schema-field"><div><div class="sf-name">mode<span class="sf-type">TEXT NOT NULL</span></div></div><div class="sf-desc"><code>ai</code> or <code>manual</code></div></div>
+      <div class="schema-field"><div><div class="sf-name">platforms<span class="sf-type">TEXT NOT NULL</span></div></div><div class="sf-desc"><code>instagram</code> · <code>linkedin</code> · <code>both</code></div></div>
+      <div class="schema-field"><div><div class="sf-name">caption<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Manual mode caption text</div></div>
+      <div class="schema-field"><div><div class="sf-name">image_path<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Local path to stored image (never exposed via API)</div></div>
+      <div class="schema-field"><div><div class="sf-name">image_filename<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Original sanitized filename</div></div>
+      <div class="schema-field"><div><div class="sf-name">image_mimetype<span class="sf-type">TEXT</span></div></div><div class="sf-desc">e.g. <code>image/jpeg</code></div></div>
+      <div class="schema-field"><div><div class="sf-name">prompt<span class="sf-type">TEXT</span></div></div><div class="sf-desc">AI mode post idea</div></div>
+      <div class="schema-field"><div><div class="sf-name">tone<span class="sf-type">TEXT</span></div></div><div class="sf-desc">AI mode tone hint (optional)</div></div>
+      <div class="schema-field"><div><div class="sf-name">scheduled_time<span class="sf-type">TEXT NOT NULL</span></div></div><div class="sf-desc">ISO-8601 datetime string</div></div>
+      <div class="schema-field"><div><div class="sf-name">status<span class="sf-type">TEXT DEFAULT pending</span></div></div><div class="sf-desc"><code>pending</code> · <code>posted</code> · <code>failed</code></div></div>
+      <div class="schema-field"><div><div class="sf-name">created_at<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Auto set to <code>datetime('now')</code></div></div>
+      <div class="schema-field"><div><div class="sf-name">fired_at<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Timestamp when scheduler fired the post</div></div>
+      <div class="schema-field"><div><div class="sf-name">error_msg<span class="sf-type">TEXT</span></div></div><div class="sf-desc">Webhook error detail when <code>status=failed</code></div></div>
+    </div>
+  </section>
+
+  <!-- ── Config ── -->
+  <section class="au">
+    <div class="section-label">08 · configuration</div>
+    <h2 class="section-title">Environment variables</h2>
+    <div class="api-wrap">
+      <table class="api-table">
+        <thead><tr><th>Variable</th><th>Default</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code style="font-size:12px;color:var(--accent)">N8N_WEBHOOK_URL</code></td>
+            <td style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">webhook-test/…</td>
+            <td style="font-size:13px;color:var(--muted)">n8n webhook endpoint. Use <code>/webhook/</code> in production.</td>
+          </tr>
+          <tr>
+            <td><code style="font-size:12px;color:var(--accent)">DB_PATH</code></td>
+            <td style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">posts.db</td>
+            <td style="font-size:13px;color:var(--muted)">SQLite database file path.</td>
+          </tr>
+          <tr>
+            <td><code style="font-size:12px;color:var(--accent)">MAX_CONTENT_LENGTH</code></td>
+            <td style="font-size:12px;color:var(--muted);font-family:'Space Mono',monospace">16 MB</td>
+            <td style="font-size:13px;color:var(--muted)">Maximum request body size for image uploads.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer-logo">AUTO<span>POST</span></div>
+    <div class="footer-links">
+      <a href="https://github.com/TarunGoel93/ai-social-automation">GitHub</a>
+      <a href="https://github.com/TarunGoel93/ai-social-automation/issues">Issues</a>
+      <a href="https://github.com/TarunGoel93/ai-social-automation/pulls">Pull Requests</a>
+      <a href="https://n8n.io/docs">n8n Docs</a>
+    </div>
+    <div class="footer-copy">Built by Tarun Goel · MIT License</div>
+  </footer>
+
+</div>
+
+<script>
+function scrollTo(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth'})}
+
+function copyCode(btn){
+  const code=btn.closest('.codeblock').querySelector('pre').innerText;
+  navigator.clipboard.writeText(code).then(()=>{
+    const orig=btn.textContent;
+    btn.textContent='copied!';
+    btn.style.color='var(--accent2)';
+    setTimeout(()=>{btn.textContent=orig;btn.style.color=''},1800);
+  });
+}
+
+// TOC active state
+const tocDots=document.querySelectorAll('.toc-dot');
+const sections=document.querySelectorAll('section[id]');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      const id=e.target.id;
+      const idx=['hero','features','arch','start','n8n','api','schema'].indexOf(id);
+      tocDots.forEach((d,i)=>d.classList.toggle('active',i===idx));
+    }
+  });
+},{threshold:.3});
+sections.forEach(s=>obs.observe(s));
+
+// Scroll reveal
+const revealObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.opacity='1';
+      e.target.style.transform='translateY(0)';
+    }
+  });
+},{threshold:.08});
+document.querySelectorAll('section').forEach(s=>{
+  s.style.opacity='0';
+  s.style.transform='translateY(24px)';
+  s.style.transition='opacity .6s ease, transform .6s ease';
+  revealObs.observe(s);
+});
+</script>
+</body>
+</html>

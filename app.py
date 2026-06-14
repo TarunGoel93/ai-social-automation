@@ -24,7 +24,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 N8N_WEBHOOK_URL = os.getenv(
     'N8N_WEBHOOK_URL',
-    'https://intellifytechnology.app.n8n.cloud/webhook-test/0e383072-9f3d-4da2-8e47-ca164ae15191'
+    'https://intellifytechnology.app.n8n.cloud/webhook/0e383072-9f3d-4da2-8e47-ca164ae15191'
 )
 # NOTE: /webhook-test/ only works when the n8n workflow is open & in "test" mode.
 # For production, set N8N_WEBHOOK_URL env var to the /webhook/ (production) URL instead.
