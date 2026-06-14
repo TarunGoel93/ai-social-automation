@@ -46,13 +46,33 @@
   const statusMessage = document.getElementById('status-message');
   const statusClose   = document.getElementById('status-close');
 
+  /* ── IST timezone helper ───────────────────────────────── */
+  function toIST(dateStr) {
+    if (!dateStr) return '—';
+    return new Date(dateStr).toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: true
+    });
+  }
+
+  // Convert datetime-local value (no timezone) to IST-aware ISO string
+  function localToIST(raw) {
+    if (!raw) return '';
+    // raw = "2026-06-14T19:25" — treat as IST by appending +05:30
+    return raw + ':00+05:30';
+  }
+
   /* ── Min datetime = now+1min ───────────────────────────── */
   function setMinDatetime(input) {
+    // Set min in IST (which is what the user sees)
     const now = new Date();
     now.setSeconds(0, 0);
     now.setMinutes(now.getMinutes() + 1);
+    // Convert to IST
+    const istNow = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
     const p = n => String(n).padStart(2, '0');
-    input.min = `${now.getFullYear()}-${p(now.getMonth()+1)}-${p(now.getDate())}T${p(now.getHours())}:${p(now.getMinutes())}`;
+    input.min = `${istNow.getFullYear()}-${p(istNow.getMonth()+1)}-${p(istNow.getDate())}T${p(istNow.getHours())}:${p(istNow.getMinutes())}`;
   }
 
   /* ── Mode Toggle (3 tabs) ──────────────────────────────── */
@@ -65,7 +85,6 @@
       btn.setAttribute('aria-selected', String(active));
     });
 
-    // Slide the indicator
     toggle.dataset.tab = idx;
 
     allForms.forEach((form, i) => {
@@ -74,7 +93,6 @@
     });
 
     hideStatus();
-
     if (mode === 'queue') loadQueue();
   }
 
@@ -141,16 +159,17 @@
 
   /* ── AI Submit ─────────────────────────────────────────── */
   submitAI.addEventListener('click', async () => {
-    const prompt    = aiPrompt.value.trim();
-    const platform  = aiPlatform.value;
-    const tone      = aiTone.value.trim();
+    const prompt      = aiPrompt.value.trim();
+    const platform    = aiPlatform.value;
+    const tone        = aiTone.value.trim();
     const useSchedule = aiScheduleToggle.checked;
-    const scheduled = useSchedule ? aiScheduledTime.value : '';
+    // ✅ FIX: append +05:30 to treat input as IST
+    const scheduled   = useSchedule ? localToIST(aiScheduledTime.value) : '';
 
     let ok = true;
-    if (!prompt)                   { flag(aiPrompt,        true); ok = false; }
-    if (!platform)                 { flag(aiPlatform,      true); ok = false; }
-    if (useSchedule && !scheduled) { flag(aiScheduledTime, true); ok = false; }
+    if (!prompt)                        { flag(aiPrompt,        true); ok = false; }
+    if (!platform)                      { flag(aiPlatform,      true); ok = false; }
+    if (useSchedule && !aiScheduledTime.value) { flag(aiScheduledTime, true); ok = false; }
     if (!ok) { showStatus('error', 'Please fill in all required fields.'); return; }
 
     setLoading(submitAI, true); hideStatus();
@@ -173,17 +192,18 @@
 
   /* ── Manual Submit ─────────────────────────────────────── */
   submitManual.addEventListener('click', async () => {
-    const caption   = manualCaption.value.trim();
-    const platform  = manualPlatform.value;
-    const imageFile = manualImage.files[0];
+    const caption     = manualCaption.value.trim();
+    const platform    = manualPlatform.value;
+    const imageFile   = manualImage.files[0];
     const useSchedule = manualScheduleToggle.checked;
-    const scheduled = useSchedule ? manualScheduledTime.value : '';
+    // ✅ FIX: append +05:30 to treat input as IST
+    const scheduled   = useSchedule ? localToIST(manualScheduledTime.value) : '';
 
     let ok = true;
-    if (!caption)                  { flag(manualCaption,      true); ok = false; }
-    if (!platform)                 { flag(manualPlatform,     true); ok = false; }
-    if (!imageFile)                { uploadZone.style.borderColor = 'var(--error-fg)'; ok = false; }
-    if (useSchedule && !scheduled) { flag(manualScheduledTime,true); ok = false; }
+    if (!caption)                             { flag(manualCaption,      true); ok = false; }
+    if (!platform)                            { flag(manualPlatform,     true); ok = false; }
+    if (!imageFile)                           { uploadZone.style.borderColor = 'var(--error-fg)'; ok = false; }
+    if (useSchedule && !manualScheduledTime.value) { flag(manualScheduledTime, true); ok = false; }
     if (!ok) { showStatus('error', 'Please fill in all required fields and upload an image.'); return; }
     if (!imageFile.type.startsWith('image/')) { showStatus('error', 'Only image files are allowed.'); return; }
 
@@ -191,7 +211,7 @@
     const fd = new FormData();
     fd.append('mode', 'manual'); fd.append('caption', caption);
     fd.append('platforms', platform); fd.append('image', imageFile);
-    fd.append('scheduled_time', scheduled);
+    fd.append('scheduled_time', scheduled); // ✅ now IST-aware
     try {
       const res  = await fetch('/submit', { method: 'POST', body: fd });
       const data = await res.json();
@@ -228,9 +248,10 @@
         const title = p.mode === 'ai'
           ? `✦ AI · ${(p.prompt || '').slice(0, 55)}${p.prompt && p.prompt.length > 55 ? '…' : ''}`
           : `✎ Manual · ${(p.caption || '').slice(0, 55)}${p.caption && p.caption.length > 55 ? '…' : ''}`;
-        const time = p.scheduled_time
-          ? new Date(p.scheduled_time).toLocaleString(undefined, {dateStyle:'medium',timeStyle:'short'})
-          : '—';
+
+        // ✅ FIX: display time in IST
+        const time = toIST(p.scheduled_time);
+
         const badgeClass = `badge-${p.status}`;
         const actions = p.status === 'pending'
           ? `<div class="qc-btn-row">
@@ -240,8 +261,11 @@
           : '';
         const errLine = p.error_msg
           ? `<div class="qc-meta qc-error">Error: ${p.error_msg}</div>` : '';
+
+        // ✅ FIX: fired_at also in IST (no need to append 'Z' since it already has timezone)
         const firedLine = p.fired_at
-          ? `<div class="qc-meta">Sent: ${new Date(p.fired_at + 'Z').toLocaleString(undefined, {dateStyle:'medium',timeStyle:'short'})}</div>` : '';
+          ? `<div class="qc-meta">Sent: ${toIST(p.fired_at)}</div>` : '';
+
         card.innerHTML = `
           <div class="qc-body">
             <div class="qc-title">${title}</div>
@@ -285,7 +309,6 @@
 
   queueRefresh && queueRefresh.addEventListener('click', loadQueue);
 
-  // Auto-refresh every 30s when queue tab is active
   setInterval(() => {
     if (!formQueue.hasAttribute('hidden')) loadQueue();
   }, 30000);
@@ -295,7 +318,7 @@
   const wsLabel = document.getElementById('ws-label');
   async function checkWebhook() {
     if (!wsDot) return;
-    wsDot.className = 'ws-dot checking'; wsLabel.textContent = 'checking n8n…';
+    wsDot.className = 'ws-dot checking'; wsLabel.textContent = 'checking…';
     try {
       const res  = await fetch('/health');
       const data = await res.json();
@@ -303,9 +326,7 @@
         wsDot.className = 'ws-dot ok'; wsLabel.textContent = 'n8n connected';
       } else {
         wsDot.className = 'ws-dot error';
-        wsLabel.textContent = data.http_status === 404
-          ? 'n8n: workflow not active'
-          : `n8n: ${data.message}`;
+        wsLabel.textContent = `error: ${data.message}`;
       }
     } catch {
       wsDot.className = 'ws-dot error'; wsLabel.textContent = 'n8n unreachable';
