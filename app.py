@@ -97,17 +97,23 @@ def fire_post(post: dict):
 def index():
     return render_template('index.html')
 
+
+
 @app.route('/health')
 def health():
     try:
-        resp = requests.post(N8N_WEBHOOK_URL, json={'ping': True}, timeout=6)
-        ok = resp.status_code < 500
-        return jsonify({'status': 'ok' if ok else 'error', 'http_status': resp.status_code,
-                        'message': 'n8n reachable' if ok else f'n8n returned {resp.status_code}'})
-    except requests.exceptions.ConnectionError:
-        return jsonify({'status': 'error', 'message': 'n8n unreachable'}), 503
+        # Just check DB connection, don't ping n8n webhook
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1")
+        return jsonify({
+            'status': 'ok',
+            'message': 'DB connected',
+            'webhook_url': N8N_WEBHOOK_URL
+        })
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 @app.route('/run-cron', methods=['GET', 'POST'])
 def run_cron():
